@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    container_name: practica-js-app
+    ports:
+      - ${APP_FORWARD_PORT:-8080}:3000
+    volumes:
+      - .:/app
+    networks:
+      - practica-js-net
+  
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: practica-js-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGMENT_PORT:-15672}:15672"
+    networks:
+      - practica-js-net
+  
+  database:
+    image: postgres:15.6-alpine3.18
+    container_name: practica-js-postgresql
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-"root"}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-"secret"}
+      - POSTGRES_DB=${DB_NAME:-"practica_js_db"}
+
+    volumes:
+      - /home/$USER/practica-js/local_pgdata:/app/postgresql/data
+    networks:
+      - practica-js-net
+
+  pgadmin:
+    image: dpage/pgadmin4:8.3
+    container_name: practica-js-pgadmin
+    depends_on:
+      - database
+    ports:
+      - "${PGADMIN_PORT:-8888}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - /home/$USER/practica-js/pgadmin-data:/app/pgadmin
+    networks:
+      - practica-js-net
+
+networks:
+  practica-js-net:
