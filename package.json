@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "javascrpit practice repository - node.js - postgresql",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "predev": "npm install",
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "jest"
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Angel-Molina20/javascript-practice.git"
